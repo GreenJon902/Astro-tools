@@ -3,12 +3,30 @@ from typing import Union, IO, Optional
 import cv2
 import numpy as np
 
+pixel_distance = 3
+
 
 def _remove_noise(image: np.ndarray) -> np.ndarray:
     """
     :param image: A single channel of an image (a greyscale image)
     :return:
     """
+    new_image = np.zeros(image.shape)
+
+    for y in range(image.shape[0]):
+        for x in range(image.shape[0]):
+            col = image[y, x]
+
+            for dy in range(-pixel_distance, pixel_distance):  # loop through close pixels
+                for dx in range(-pixel_distance, pixel_distance):
+
+                    if 0 < (dy + y) < image.shape[0] and 0 < (dx + x) < image.shape[1]:
+                        # average
+                        col = (col+image[y + dy, x + dx])/2
+
+            new_image[y, x] = col
+
+    return new_image
 
 
 def remove_noise(img_in: Union[str, IO, np.ndarray], img_out: Union[str, IO] = None) -> Optional[np.ndarray]:
@@ -35,6 +53,8 @@ def remove_noise(img_in: Union[str, IO, np.ndarray], img_out: Union[str, IO] = N
 
     b, g, r = cv2.split(image)
     noise_removed_image = cv2.merge((_remove_noise(b), _remove_noise(g), _remove_noise(r)))
+    cv2.imshow("a", noise_removed_image)
+    cv2.waitKey(0)
 
 
 if __name__ == '__main__':
