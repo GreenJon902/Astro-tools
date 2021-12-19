@@ -4,6 +4,13 @@ import cv2
 import numpy as np
 
 
+def _remove_noise(image: np.ndarray) -> np.ndarray:
+    """
+    :param image: A single channel of an image (a greyscale image)
+    :return:
+    """
+
+
 def remove_noise(img_in: Union[str, IO, np.ndarray], img_out: Union[str, IO] = None) -> Optional[np.ndarray]:
     """
     A function to remove noise from an image
@@ -23,8 +30,11 @@ def remove_noise(img_in: Union[str, IO, np.ndarray], img_out: Union[str, IO] = N
         img_in_bytes = np.asarray(bytearray(img_in.read()), dtype=np.uint8)
         image = cv2.imdecode(img_in_bytes, cv2.IMREAD_COLOR)
     else:
-        raise ValueError(f"Arguement img_in from remove_noise needs to be a string, IO object or numpy array, not "
+        raise ValueError(f"Argument img_in from remove_noise needs to be a string, IO object or numpy array, not "
                          f"{type(img_in)}")
+
+    b, g, r = cv2.split(image)
+    noise_removed_image = cv2.merge((_remove_noise(b), _remove_noise(g), _remove_noise(r)))
 
 
 if __name__ == '__main__':
